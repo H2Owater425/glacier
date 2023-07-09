@@ -1,0 +1,33 @@
+{
+  "name": "glacier-backend",
+  "version": "1.0.0",
+  "description": "Extremely personal blogging platform",
+  "main": "application/index.js",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "start": "node --require=tsconfig-paths/register distribution/application.js",
+    "dev": "ts-node-dev --rs --require=tsconfig-paths/register --files source/application.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/H2Owater425/glacier.git#backend"
+  },
+  "author": "H2Owater425 <h2o@h2owr.xyz>",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "fastify": "^4.18.0",
+    "fluent-json-schema": "^4.1.0",
+    "kysely": "^0.25.0",
+    "mariadb": "^3.2.0",
+    "marked": "^5.1.1",
+    "smtp-channel": "^0.2.4",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/marked": "^5.0.0",
+    "@types/node": "^20.3.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.3"
+  }
+}

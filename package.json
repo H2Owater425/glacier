@@ -2,11 +2,11 @@
   "name": "glacier-backend",
   "version": "1.0.0",
   "description": "Extremely personal blogging platform",
-  "main": "application/index.js",
+  "main": "distribution/index.js",
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "start": "node --require=tsconfig-paths/register distribution/application.js",
-    "dev": "ts-node-dev --rs --require=tsconfig-paths/register --files source/application.ts"
+    "start": "node --require=tsconfig-paths/register distribution/index.js",
+    "dev": "ts-node-dev --rs --require=tsconfig-paths/register --files source/index.ts"
   },
   "repository": {
     "type": "git",

@@ -8,7 +8,7 @@ export interface PageQuery {
 }
 
 export class Schema<T extends string> {
-	public defaultSchema: schema = schema;
+	public static defaultSchema: schema = schema;
 	private schemas: Record<T, ObjectSchema | StringSchema | NumberSchema | ArraySchema | IntegerSchema | BooleanSchema>;
 	
 	constructor(schemas: Schema<T>['schemas']) {

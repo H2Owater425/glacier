@@ -1,3 +1,4 @@
+import '@library/environment';
 import Logger from '@library/logger';
 import fastify, { FastifyInstance } from 'fastify';
 import notFoundHandler from './handlers/notFound';

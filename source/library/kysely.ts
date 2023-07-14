@@ -102,12 +102,12 @@ interface RawSubscriber {
 	id: Generated<number>;
 	type: number;
 	email: string;
-	is_unsubscribed: Generated<boolean>;
+	isDeleted: Generated<boolean>;
 	created_at: Generated<Date>;
 }
 
-export interface Subscriber extends Omit<RawSubscriber, 'is_unsubscribed' | 'created_at'> {
-	isUnsubscribed: RawSubscriber['is_unsubscribed'];
+export interface Subscriber extends Omit<RawSubscriber, 'isDeleted' | 'created_at'> {
+	isDeleted: RawSubscriber['isDeleted'];
 	createdAt: RawSubscriber['created_at'];
 }
 

@@ -4,9 +4,9 @@ import { getEpoch } from '@library/utility';
 export default class JsonWebToken {
 	private token: string;
 	private _secretKey: string;
-	private _payload: Record<string, any> | null;
+	private _payload: RecursiveRecord<string | number, number | string | boolean | null> | null;
 
-	public static create(payload: Record<string, any>, secretKey: string): string {
+	public static create(payload: JsonWebToken['_payload'], secretKey: string): string {
 		const headerAndPayload: string = 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.' /* {"alg":"HS512","typ":"JWT"} */ + Buffer.from(JSON.stringify(payload)).toString('base64url');
 
 		return headerAndPayload + '.' + createHmac('sha512', secretKey).update(headerAndPayload).digest('base64url');
@@ -36,7 +36,7 @@ export default class JsonWebToken {
 
 			for(let i: number = 0; i < keys['length']; i++) {
 				if(typeof(object[keys[i]]) === 'object') {
-					this.deepFreeze(object[keys[i]]);
+					this.deepFreeze(object[keys[i]] as JsonWebToken['_payload']);
 				}
 			}
 		}

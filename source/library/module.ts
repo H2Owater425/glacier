@@ -3,20 +3,18 @@ import { IncomingMessage, Server, ServerResponse } from 'http';
 import { FastifyInstance } from 'fastify';
 import { JSONSchema, NullSchema, ObjectSchema } from 'fluent-json-schema';
 import { join } from 'path/posix';
-import schemaErrorFormatHandler from 'source/handlers/schemaErrorFormat';
+import schemaErrorFormatHandler from '../handlers/schemaErrorFormat';
 import { Schema } from '@library/schema';
-
-type RecursiveRecord<T extends string | number | symbol, S> = {
-	[key in T]: S | RecursiveRecord<T, S>
-};
+import authHandler from '../handlers/auth';
+import adminHandler from '../handlers/admin';
 
 export type SchemaKey = 'body' | 'querystring' | 'params' | 'headers';
 
 export interface RouteOptions extends Omit<_RouteOptions, 'handler' | 'schema'> {
 	method: HTTPMethods;
 	handler: RouteHandlerMethod<Server, IncomingMessage, ServerResponse, any, any, FastifySchema, FastifyTypeProvider, FastifyBaseLogger>;
+	isAdminOnly?: boolean;
 	schema?: Partial<Pick<RecursiveRecord<string, | Partial<Record<'$isRequired', boolean>> | Omit<Record<string, JSONSchema>, '$isRequired'>>, SchemaKey>>;
-	excludePreHandler?: boolean;
 }
 
 export default class Module {
@@ -27,10 +25,6 @@ export default class Module {
 	};
 
 	constructor(options: Module['options']) {
-		if(options['prefix']['length'] === 0) {
-			options['prefix'] = '/';
-		}
-
 		this['options'] = options;
 
 		return;
@@ -59,8 +53,9 @@ export default class Module {
 			fastifyInstance.route(Object.assign(this['options']['routers'][i], {
 				url: join(fastifyInstance['prefix'], this['options']['prefix'], this['options']['routers'][i]['url']),
 				schema: _schema,
-				schemaErrorFormatter: schemaErrorFormatHandler
-			}));
+				schemaErrorFormatter: schemaErrorFormatHandler,
+				
+			}, this['options']['routers'][i]['isAdminOnly'] ? { preValidation: [authHandler, adminHandler] } : { preValidation: authHandler }));
 		}
 
 		if(Array.isArray(this['options']['modules'])) {

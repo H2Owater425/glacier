@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Comment {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  postId          Int       @map("post_id") @db.UnsignedInt
+  parentCommentId Int?      @map("parent_comment_id") @db.UnsignedInt
+  authorName      String    @map("author_name") @db.VarChar(32)
+  authorIp        String    @map("author_ip") @db.VarChar(39)
+  password        String    @db.VarChar(128)
+  content         String    @db.Text
+  isDeleted       Boolean   @default(dbgenerated("(b'0')")) @map("is_deleted") @db.Bit(1)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+  parentComment   Comment?  @relation("commentTocomment", fields: [parentCommentId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (comment.parent_comment_id, comment.id)")
+  childComments   Comment[] @relation("commentTocomment")
+
+  @@index([parentCommentId], map: "FOREIGN KEY (comment.parent_comment_id, comment.id)")
+  @@map("comment")
+}
+
+model Media {
+  id         Int         @id @default(autoincrement()) @db.UnsignedInt
+  hash       String      @unique(map: "UNIQUE INDEX (hash)") @db.VarChar(128)
+  type       String      @db.VarChar(16)
+  isDeleted  Boolean     @default(dbgenerated("(b'0')")) @map("is_deleted") @db.Bit(1)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.DateTime(0)
+  postMedias PostMedia[]
+  series     Series[]
+
+  @@map("media")
+}
+
+model Post {
+  id          Int          @id @default(autoincrement()) @db.UnsignedInt
+  slug        String       @unique(map: "UNIQUE INDEX (slug)") @db.VarChar(128)
+  title       String       @db.VarChar(128)
+  summary     String?      @db.VarChar(192)
+  content     String       @db.MediumText
+  rawContent  String       @map("raw_content") @db.MediumText
+  readingTime Int          @map("reading_time") @db.UnsignedInt
+  like        Int          @default(0) @db.UnsignedInt
+  isDeleted   Boolean      @default(dbgenerated("(b'0')")) @map("is_deleted") @db.Bit(1)
+  publishedAt DateTime?    @map("published_at") @db.DateTime(0)
+  updatedAt   DateTime?    @map("updated_at") @db.DateTime(0)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.DateTime(0)
+  postMedias  PostMedia[]
+  postTags    PostTag[]
+  seriesPosts SeriesPost[]
+
+  @@map("post")
+}
+
+model PostMedia {
+  id      Int   @id @default(autoincrement()) @db.UnsignedInt
+  postId  Int   @map("post_id") @db.UnsignedInt
+  mediaId Int   @map("media_id") @db.UnsignedInt
+  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (post_media.media_id, media.id)")
+  post    Post  @relation(fields: [postId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (post_media.post_id, post.id)")
+
+  @@unique([postId, mediaId], map: "UNIQUE INDEX (post_id, media_id)")
+  @@index([mediaId], map: "FOREIGN KEY (post_media.media_id, media.id)")
+  @@map("post_media")
+}
+
+model PostTag {
+  id     Int  @id @default(autoincrement()) @db.UnsignedInt
+  postId Int  @map("post_id") @db.UnsignedInt
+  tagId  Int  @map("tag_id") @db.UnsignedInt
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (post_tag.post_id, post.id)")
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (post_tag.tag_id, tag.id)")
+
+  @@unique([postId, tagId], map: "UNIQUE INDEX (post_id, tag_id)")
+  @@index([tagId], map: "FOREIGN KEY (post_tag.tag_id, tag.id)")
+  @@map("post_tag")
+}
+
+model Series {
+  id          Int          @id @default(autoincrement()) @db.UnsignedInt
+  slug        String       @unique(map: "UNIQUE INDEX (slug)") @db.VarChar(128)
+  title       String       @db.VarChar(128)
+  mediaId     Int?         @map("media_id") @db.UnsignedInt
+  isDeleted   Boolean      @default(dbgenerated("(b'0')")) @map("is_deleted") @db.Bit(1)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.DateTime(0)
+  media       Media?       @relation(fields: [mediaId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (series.media_id, media.id)")
+  seriesPosts SeriesPost[]
+
+  @@index([mediaId], map: "FOREIGN KEY (series.media_id, media.id)")
+  @@map("series")
+}
+
+model SeriesPost {
+  id       Int    @id @default(autoincrement()) @db.UnsignedInt
+  seriesId Int    @map("series_id") @db.UnsignedInt
+  postId   Int    @map("post_id") @db.UnsignedInt
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (series_post.post_id, post.id)")
+  series   Series @relation(fields: [seriesId], references: [id], onDelete: Cascade, map: "FOREIGN KEY (series_post.series_id, series.id)")
+
+  @@unique([seriesId, postId], map: "UNIQUE INDEX (series_id, post_id)")
+  @@index([postId], map: "FOREIGN KEY (series_post.post_id, post.id)")
+  @@map("series_post")
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  type      Boolean
+  email     String   @db.VarChar(128)
+  isDeleted Boolean  @default(dbgenerated("(b'0')")) @map("is_deleted") @db.Bit(1)
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@map("subscriber")
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  slug      String    @unique(map: "UNIQUE INDEX (slug)") @db.VarChar(128)
+  title     String    @db.VarChar(128)
+  isDeleted Boolean   @default(dbgenerated("(b'0')")) @map("is_deleted") @db.Bit(1)
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+  postTags  PostTag[]
+
+  @@map("tag")
+}

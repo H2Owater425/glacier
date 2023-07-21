@@ -40,6 +40,9 @@ node_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# Typescript build
+distribution/
+
 # Optional npm cache directory
 .npm
 

@@ -5,7 +5,8 @@ import notFoundHandler from './handlers/notFound';
 import errorHandler from './handlers/error';
 import serializeHandler from './handlers/serialize';
 import headerHandler from './handlers/header';
-//import rootModule from './routes/root.module';
+import rootModule from './routes/root.module';
+import { setBlogPassword } from '@library/utility';
 
 const fastifyInstance: FastifyInstance = fastify({
 	trustProxy: true,
@@ -21,11 +22,14 @@ fastifyInstance.setErrorHandler(errorHandler);
 fastifyInstance.setReplySerializer(serializeHandler);
 fastifyInstance.addHook('preHandler', headerHandler);
 
-//rootModule.register(fastifyInstance);
+rootModule.register(fastifyInstance);
 
-fastifyInstance.listen({
-	host: '0.0.0.0',
-	port: Number.parseInt(process['env']['PORT'], 10)
+setBlogPassword(process['env']['BLOG_PASSWORD'])
+.then(function (): Promise<string> {
+	return fastifyInstance.listen({
+		host: '0.0.0.0',
+		port: Number.parseInt(process['env']['PORT'], 10)
+	});
 })
 .then(function (): void {
 	fastifyInstance['log'].info('Route tree:');

@@ -1,7 +1,7 @@
 import { Schema } from '@library/schema';
 
 const commonSchema: Schema<'id' | 'hash' | 'text' | 'mediumText' | 'datetime' | 'slug' | 'title'> = new Schema({
-	id: Schema['defaultSchema'].integer().minimum(1).maximum(Number['MAX_VALUE']),
+	id: Schema['defaultSchema'].integer().minimum(1).maximum(Number['MAX_SAFE_INTEGER']),
 	hash: Schema['defaultSchema'].string().pattern(/^[0-9a-f]{128}$/),
 	text: Schema['defaultSchema'].string().minLength(1).maxLength(65535),
 	mediumText: Schema['defaultSchema'].string().minLength(1).maxLength(16777215),

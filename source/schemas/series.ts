@@ -1,8 +1,9 @@
 import { Schema } from '@library/schema';
+import { Series } from '@prisma/client';
 import commonSchema from '@schemas/common';
 import mediaSchema from '@schemas/media';
 
-const seriesSchema: Schema<'id' | 'slug' | 'title' | 'mediaId' | 'isDeleted' | 'createdAt'> = new Schema({
+const seriesSchema: Schema<keyof Series> = new Schema({
 	id: commonSchema.get('id'),
 	slug: commonSchema.get('slug'),
 	title: commonSchema.get('title'),

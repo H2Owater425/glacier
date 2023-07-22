@@ -19,6 +19,15 @@ export function getEncryptedPassword(password: string, salt: string): Promise<st
 	});
 }
 
+export function setBlogPassword(password: string): Promise<void> {
+	return getEncryptedPassword(password, process['env']['SECRET'])
+	.then(function (encryptedPassword: string): void {
+		process['env']['BLOG_PASSWORD'] = encryptedPassword;
+
+		return;
+	});
+}
+
 export function getReadingTime(content: string): number {
 	let spaceCount: number = 0;
 	
@@ -29,4 +38,8 @@ export function getReadingTime(content: string): number {
 	}
 
 	return Math.trunc(spaceCount / 200); // Reading speed of 200wpm
+}
+
+export function getNormaltext(text: string): string {
+	return text.replace(/[^\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}a-zA-Z0-9\s]+/gu, '');
 }
